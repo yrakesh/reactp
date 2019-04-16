@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import TemperatureInput from './TemperatureInput';
 import logo from './logo.svg';
 import './App.css';
 
@@ -65,79 +66,47 @@ function BoilingVerdict(props) {
   return <p>The water would not boil.</p>
 }
 
+function getFahrTemp(tempC) {
+  return (tempC * 9/5) + 32;
+}
+
+function getCelsTemp(tempF) {
+  return (tempF - 32) * 5/9;
+}
+
+function tryConvert(temperature, convert) {
+  const input = parseFloat(temperature);
+  if(Number.isNaN(input)) {
+    return '';
+  }
+  return convert(input);
+}
+
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.handleLoginClick = this.handleLoginClick.bind(this);
-    this.handleLogoutClick = this.handleLogoutClick.bind(this);
-    this.handleNameChange = this.handleNameChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleTempCelsChange = this.handleTempCelsChange.bind(this);
-    this.handleTempFahrChange = this.handleTempFahrChange.bind(this);
-    this.state = {isLogged : false, value: '', tempCelsius: '', tempFahr : ''};
+    this.state = {temperature : '', scale : 'c'};
+    this.handleCelsiusChange = this.handleCelsiusChange.bind(this);
+    this.handleFahrheitChange = this.handleFahrheitChange.bind(this);
   }
-  handleLoginClick(props) {
-    this.setState({isLogged : true});
+  handleCelsiusChange(temperature) {
+    console.log('TEMPERATURE', temperature);
+    this.setState({scale: 'c', temperature});
   }
-  handleLogoutClick(props) {
-    this.setState({isLogged : false});
-  }
-  handleNameChange(event) {
-    this.setState({value: event.target.value.toUpperCase()});
-  }
-  handleSubmit(e) {
-    console.log('name was submitted', this.state.value);
-    e.preventDefault();
-  }
-  getFahrTemp(tempC) {
-    return (tempC * 9/5) + 32;
-  }
-  getCelsTemp(tempF) {
-    return (tempF - 32) * 5/9;
-  }
-  handleTempCelsChange(event) {
-    let tempC = event.target.value,
-        tempF = this.getFahrTemp(tempC);
-
-    this.setState({tempCelsius: tempC, tempFahr: tempF});
-  }
-  handleTempFahrChange(event) {
-    let tempF = event.target.value,
-        tempC = this.getCelsTemp(tempF);
-
-    this.setState({tempCelsius: tempC, tempFahr: tempF});
+  handleFahrheitChange(temperature) {
+    console.log('temperature', temperature);
+    this.setState({temperature, scale: 'f'});
   }
   render() {
-    const isLoggedIn = this.state.isLogged;
-    const tempCelsius = this.state.tempCelsius;
-    const tempFahr    = this.state.tempFahr;
-    let button;
-
-    if(isLoggedIn) {
-      button = <LogoutButton onClick={this.handleLogoutClick}/>
-    } else {
-      button = <LoginButton onClick={this.handleLoginClick}/>
-    }
+    const scale       = this.state.scale;
+    const temperature = this.state.temperature;
+    const celsius     = scale === 'f' ? tryConvert(temperature, getCelsTemp) : temperature;
+    const fahrheit    = scale === 'c' ? tryConvert(temperature, getFahrTemp) : temperature;
     return (
       <div>
-        <NumberList numbers={numbers} />
-        <Greeting isLogged={!true} />
-          {button}
-          <Mailbox unreadMessages={messages}/>
-          User is {isLoggedIn ? 'currently' : 'not'} logged in.
-          <form onSubmit={this.handleSubmit}>
-            UserName: <input type="text" value={this.state.value} onChange={this.handleNameChange} />
-            <input type="submit" value="submit" />
-          </form>
-          <fieldset>
-            <legend>Enter temperature in celsius:</legend>
-            <input value={tempCelsius} onChange={this.handleTempCelsChange} />
-          </fieldset>
-          <fieldset>
-            <legend>Enter temperature in fahrenheit:</legend>
-            <input value={tempFahr} onChange={this.handleTempFahrChange} />
-          </fieldset>
-          <BoilingVerdict celsius={tempCelsius} />
+        <TemperatureInput scale="c" temperature={celsius}  onTemperatureChange={this.handleCelsiusChange} />
+        <TemperatureInput scale="f" temperature={fahrheit} onTemperatureChange={this.handleFahrheitChange} />
+        <BoilingVerdict celsius={celsius} />
       </div>
     );
   }
