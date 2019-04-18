@@ -82,33 +82,62 @@ function tryConvert(temperature, convert) {
   return convert(input);
 }
 
+function FancyBorder(props) {
+  return (
+    <div className={'FancyBorder Fancyborder-' + props.color}>
+    {props.children}
+    </div>
+  );
+}
+
+function Dialog(props) {
+  return (
+    <FancyBorder color="blue">
+      <h1>{props.title}</h1>
+      <p>{props.content}</p>
+      {props.children}
+    </FancyBorder>
+  );
+}
+
+function SplitPane(props) {
+  return (
+    <div class="split-pane">
+      <div class="sp-left">
+        {props.left}
+      </div>
+      <div class="sp-right">
+        {props.right}
+      </div>
+    </div>
+  );
+}
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {temperature : '', scale : 'c'};
-    this.handleCelsiusChange = this.handleCelsiusChange.bind(this);
-    this.handleFahrheitChange = this.handleFahrheitChange.bind(this);
+    this.state= {login: ''};
+    this.onLoginChange = this.onLoginChange.bind(this);
+    this.handleSignUp = this.handleSignUp.bind(this);
   }
-  handleCelsiusChange(temperature) {
-    console.log('TEMPERATURE', temperature);
-    this.setState({scale: 'c', temperature});
+  onLoginChange(event) {
+    this.setState({login: event.target.value});
   }
-  handleFahrheitChange(temperature) {
-    console.log('temperature', temperature);
-    this.setState({temperature, scale: 'f'});
+  handleSignUp(event) {
+    alert(`${this.state.login} - welcome!!!`);
   }
   render() {
-    const scale       = this.state.scale;
-    const temperature = this.state.temperature;
-    const celsius     = scale === 'f' ? tryConvert(temperature, getCelsTemp) : temperature;
-    const fahrheit    = scale === 'c' ? tryConvert(temperature, getFahrTemp) : temperature;
-    return (
-      <div>
-        <TemperatureInput scale="c" temperature={celsius}  onTemperatureChange={this.handleCelsiusChange} />
-        <TemperatureInput scale="f" temperature={fahrheit} onTemperatureChange={this.handleFahrheitChange} />
-        <BoilingVerdict celsius={celsius} />
-      </div>
-    );
+    return <div>
+             <Dialog title="dialog title" content="this is dialog content">
+                <input value={this.state.login} onChange={this.onLoginChange} />
+                <button onClick={this.handleSignUp}>Sign me up!</button>
+             </Dialog>
+             <SplitPane left={
+               <div class="contacts">contacts</div>
+             } right={
+               <div class="chats">chats</div>
+             }>
+             </SplitPane>
+           </div>
   }
 }
 
